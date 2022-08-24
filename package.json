@@ -1,0 +1,26 @@
+{
+  "name": "recipesbackend",
+  "version": "1.0.0",
+  "description": "Backend to recipes app",
+  "main": "index.js",
+  "scripts": {
+    "start": "index",
+    "dev": "nodemon index"
+  },
+  "keywords": [],
+  "author": "Bela Fekete",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "date-fns": "^2.29.1",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-async-handler": "^1.2.0",
+    "express-fileupload": "^1.4.0",
+    "moment": "^2.29.3",
+    "mysql": "^2.18.1",
+    "uuid": "^8.3.2"
+  }
+}
