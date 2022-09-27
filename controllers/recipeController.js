@@ -1,5 +1,7 @@
-const path      = require("path")
-const services  = require('../services/methods')
+const fs            = require('fs')
+const fsPromises    = fs.promises
+const path          = require("path")
+const services      = require('../services/methods')
 
 /**
  ** ALL RECIPES FROM DATABASE
@@ -16,16 +18,34 @@ const allRecipes = async (req, res) => {
 }
 
 const cerateRecipe = async (req, res) => {
+    const file = req?.files?.img ? req?.files?.img : null
+    console.log('RFI ', file)
+    const filePath = file !== null ? `../recipeImgs/${file.name}` : ""
+    if (file !== null) {
+        if (!fs.existsSync(path.join(__dirname, '..', 'recipeImgs'))) 
+            await fsPromises.mkdir(path.join(__dirname, '..', 'recipeImgs'))
+
+        file.mv(`${__dirname}/../recipeImgs/${file.name}`, err => {
+            if (err) {
+              console.error(err);
+              return res.status(500).send(err);
+            }
+        
+            console.log({ fileName: file.name, filePath });
+        })
+    }
+    /* else {return res.status(400).json({ message: 'NO FILE UPLOADED!' })} */
     const { name, description, completion, type, temperature, completionTime, difficulty } = req.body
     const params = { 
-        nev: name,
-        tipus: type,
+        name,
+        type,
         macera: difficulty,
         hofok: temperature,
         elkeszites: completion,
         sutesido: completionTime,
-        description: description
-     }
+        description: description,
+        image: filePath
+    }
     const resp  = await services.saveDataToDb("recepts", params )
     res.status(200).json(resp)
 }
