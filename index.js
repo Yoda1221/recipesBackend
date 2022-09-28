@@ -5,25 +5,27 @@ const express       = require('express')
 const cookieParser  = require('cookie-parser')
 const dotenv        = require('dotenv').config()
 const fileUpload    = require('express-fileupload')
+const corsOptions   = require('./config/corsOptions')
 const errorHandler  = require('./middlewares/ErrorHandler')
 const { logEvents, logger } = require('./middlewares/Logger')
 
-const app       = express()
-const httpServer = http.createServer(app)
-const PORT = process.env.PORT || 4001
+const app           = express()
+const httpServer    = http.createServer(app)
+const PORT          = process.env.PORT || 4001
 
 app.use(logger)
 app.use(errorHandler)
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(fileUpload())
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({extended:false}))
 
-app.use('/api',     require('./routes/routes'))
-app.use('/auth',    require('./routes/authRoutes.js'))
+app.use('/',        require('./routes/routes'))
 app.use('/users',   require('./routes/userRoutes.js'))
-app.use('/recipes', require('./routes/recipeRoutes.js'))
+//app.use('/api',     require('./routes/routes'))
+//app.use('/auth',    require('./routes/authRoutes.js'))
+//app.use('/recipes', require('./routes/recipeRoutes.js'))
 
 app.all('*', (req, res) => {
     res.status(404)
