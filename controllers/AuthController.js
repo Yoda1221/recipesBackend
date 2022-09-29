@@ -9,7 +9,7 @@ const asyncHandler  = require('express-async-handler')
  ** @access Public
  */
 const login = asyncHandler(async (req, res) => {
-    const cookies = req.cookies
+    //const cookies = req.cookies
     const { email, password } = req.body
     const { table } = {table: "users"}
     const params = { email }
@@ -29,24 +29,16 @@ const login = asyncHandler(async (req, res) => {
         { expiresIn: '5m' }
     )
 
-    if (cookies?.RecipesFromVica) {
-        res.clearCookie(process.env.COOKIENAME, { 
-            httpOnly: true, 
-            sameSite: 'None', 
-            secure: process.env.COOKIESECURE 
-        })
-    }
-
     const refreshToken = jwt.sign(
         { "id": foundUser[0].id, "username": foundUser[0].username },
         process.env.REFTOKENSECRET,
         { expiresIn: '1d' }
     )
-
+console.log('SECURE ', process.env.COOKIESECURE )
     //** CREATE SECURE COOKIE WITH REFRESH TOKEN 
     res.cookie(process.env.COOKIENAME, refreshToken, {
         httpOnly: true,                     //? accessible only by web server 
-        sameSite: 'None',                   //? cross-site cookie 
+        //sameSite: 'None',                   //? cross-site cookie 
         maxAge: 24 * 60 * 60 * 1000,        //? cookie expiry: set to match rT
         secure: process.env.COOKIESECURE    //? http false, https true
     })
@@ -61,12 +53,11 @@ const login = asyncHandler(async (req, res) => {
 ** @access  Public - because access token has expired
 */
 const refresh = (req, res) => {
-    console.log('REFRESH')
-    const cookies = req.cookies
+    const cookies = req?.cookies
     const { table } = {table: "users"}
-    console.log("🚀 ~ file: AuthController.js ~ line 57 ~ refresh ~ cookies", cookies)
-    if (!cookies?.RecipesFromVica) return res.status(401).json({ message: 'Unauthorizedrefresh' })
-    const refreshToken = cookies.RecipesFromVica
+    console.log("🚀 ~ file: AuthController.js ~ line 67 ~ refresh ~ cookies", cookies)
+    if (!cookies?.Recipes) return res.status(401).json({ message: 'Unauthorizedrefresh' })
+    const refreshToken = cookies.Recipes
     console.log("🚀 ~ file: AuthController.js ~ line 69 ~ refresh ~ refreshToken", refreshToken)
 
     jwt.verify(refreshToken, process.env.REFTOKENSECRET, asyncHandler(async (err, decoded) => {
@@ -74,11 +65,11 @@ const refresh = (req, res) => {
         const foundUser = await services.getDataFromDb({base: table}, { id: decoded.id })
         if (foundUser.length === 0) return res.status(401).json({ message: 'UNAUTHORIZED!' })
         const accessToken = jwt.sign({
-            "id": foundUser[0].id,
-            "username": foundUser[0].username
-        },
+                "id": foundUser[0].id,
+                "username": foundUser[0].username
+            },
             process.env.ACCTOKENSECRET,
-            { expiresIn: '1m' }
+            { expiresIn: '5m' }
         )
         res.json({ accessToken })
     }))
@@ -90,10 +81,17 @@ const refresh = (req, res) => {
 ** @access  Public - just to clear cookie if exists
 */
 const logout = (req, res) => {
-    const cookies = req.cookies
-    if (!cookies?.RecipesFromVica) return res.sendStatus(204) //?  NO CONTENT
-    res.clearCookie(process.env.COOKIENAME, { httpOnly: true, sameSite: 'None', secure: true })
-    res.json({ message: 'COOKIE CLEARED!' })
+    console.log('LOGOUT')
+    const cookies = req?.cookies
+    console.log("🚀 ~ file: AuthController.js ~ line 95 ~ logout ~ cookies", cookies)
+
+    if (!cookies?.Recipes) return res.status(204).json({ message: 'NO COOKIE!' }) //?  NO CONTENT
+    res.clearCookie(process.env.COOKIENAME)
+    console.log(3)
+    res.cookie(process.env.COOKIENAME, {maxAge: 0,})
+    console.log(4)
+    res.status(204).json({ message: 'COOKIE CLEARED!' })
+    console.log(5)
 }
 
 module.exports = {

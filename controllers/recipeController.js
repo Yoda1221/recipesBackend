@@ -20,12 +20,13 @@ const allRecipes = async (req, res) => {
 const cerateRecipe = async (req, res) => {
     const file = req?.files?.img ? req?.files?.img : null
     console.log('RFI ', file)
-    const filePath = file !== null ? `../recipeImgs/${file.name}` : ""
+    const filePath = file !== null ? `recipeImgs/${file.name}` : ""
     if (file !== null) {
-        if (!fs.existsSync(path.join(__dirname, '..', 'recipeImgs'))) 
-            await fsPromises.mkdir(path.join(__dirname, '..', 'recipeImgs'))
+        console.log('FOLDER ', !fs.existsSync(path.join(__dirname, '..', 'public', 'recipeImgs')))
+        if (!fs.existsSync(path.join(__dirname, '..', 'public', 'recipeImgs'))) 
+            await fsPromises.mkdir(path.join(__dirname, '..', 'public', 'recipeImgs'))
 
-        file.mv(`${__dirname}/../recipeImgs/${file.name}`, err => {
+        file.mv(`public/recipeImgs/${file.name}`, err => {
             if (err) {
               console.error(err);
               return res.status(500).send(err);

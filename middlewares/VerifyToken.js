@@ -9,8 +9,10 @@ const verifyToken = (req, res, next) => {
 
     jwt.verify(token, process.env.ACCTOKENSECRET, (err, decoded) => {
             if (err) return res.status(403).json({ message: 'FORBIDDEN!' })
-            req.user    = decoded.UserInfo.userName
-            req.roles   = decoded.UserInfo.roles
+            console.log("🚀 VerifyToken.js → line 12 → jwt.verify → DECODED ", decoded)
+            //req.user    = decoded.UserInfo.userName
+            req.id      = decoded.id
+            req.user    = decoded.username
             next()
         }
     )
